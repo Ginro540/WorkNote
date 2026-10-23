@@ -1,0 +1,6 @@
+[
+  { "id": "site-yamada", "name": "山田様邸 外壁塗装", "address": "福岡市中央区天神1-1-1", "active": true, "order": 1 },
+  { "id": "site-hakata", "name": "博多駅前ビル 改修工事", "address": "福岡市博多区博多駅前2-3-5", "active": true, "order": 2 },
+  { "id": "site-sato", "name": "佐藤様邸 キッチンリフォーム", "address": "福岡市南区大橋1-5-12", "active": true, "order": 3 },
+  { "id": "site-honsha", "name": "本社倉庫", "address": "福岡市東区箱崎ふ頭4-1-10", "active": true, "order": 10 }
+]

@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// ワークノート Cloud Storage セキュリティルール
+// 画像は自分のフォルダ（{uid}）にだけアップロードできる
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 20 * 1024 * 1024;
+    }
+
+    // 日報の写真
+    match /reports/{uid}/{reportId}/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create, update: if request.auth != null && request.auth.uid == uid && isImage();
+      allow delete: if false;
+    }
+
+    // 領収書の画像（撮り直しは上書き）
+    match /receipts/{uid}/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create, update: if request.auth != null && request.auth.uid == uid && isImage();
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "company": {
+    "closingDay": 0,
+    "imageUploadEnabled": false,
+    "correctionDeadlineBusinessDays": 3,
+    "breakRules": [
+      { "overMinutes": 360, "breakMinutes": 45 },
+      { "overMinutes": 525, "breakMinutes": 60 }
+    ]
+  },
+  "reportTemplate": {
+    "fields": [
+      { "key": "date", "label": "日付", "type": "date", "required": true, "order": 1 },
+      { "key": "weather", "label": "天気", "type": "weather", "required": false, "order": 2 },
+      { "key": "workTime", "label": "作業時間", "type": "timeRange", "required": true, "order": 3 },
+      { "key": "site", "label": "訪問先・現場名", "type": "sites", "required": true, "order": 4 },
+      { "key": "content", "label": "作業内容", "type": "longText", "required": true, "order": 5 },
+      { "key": "impressions", "label": "所感・報告事項", "type": "longText", "required": false, "order": 6 },
+      { "key": "tomorrow", "label": "明日の予定", "type": "longText", "required": false, "order": 7 },
+      { "key": "photos", "label": "写真", "type": "photos", "required": false, "order": 8 }
+    ]
+  },
+  "expenseCategories": {
+    "categories": [
+      { "id": "travel", "name": "旅費交通費", "keywords": ["JR", "鉄道", "バス", "タクシー", "交通", "NEXCO", "高速", "ETC"], "order": 1 },
+      { "id": "parking", "name": "駐車場代", "keywords": ["駐車場", "パーキング", "コインパーキング", "タイムズ"], "order": 2 },
+      { "id": "fuel", "name": "燃料費", "keywords": ["ガソリン", "レギュラー", "軽油", "ENEOS", "出光", "コスモ石油"], "order": 3 },
+      { "id": "supplies", "name": "材料・消耗品費", "keywords": ["ホームセンター", "資材", "工具", "文具", "コーナン", "カインズ"], "order": 4 },
+      { "id": "meeting", "name": "会議費", "keywords": ["カフェ", "喫茶", "コーヒー", "珈琲"], "order": 5 },
+      { "id": "entertainment", "name": "接待交際費", "keywords": ["居酒屋", "レストラン", "料亭", "贈答"], "order": 6 },
+      { "id": "communication", "name": "通信費", "keywords": ["切手", "郵便", "レターパック", "宅急便"], "order": 7 },
+      { "id": "other", "name": "その他", "keywords": [], "order": 99 }
+    ]
+  },
+  "calendar_2026": {
+    "holidays": [
+      { "date": "2026-01-01", "name": "元日", "kind": "national" },
+      { "date": "2026-01-12", "name": "成人の日", "kind": "national" },
+      { "date": "2026-02-11", "name": "建国記念の日", "kind": "national" },
+      { "date": "2026-02-23", "name": "天皇誕生日", "kind": "national" },
+      { "date": "2026-03-20", "name": "春分の日", "kind": "national" },
+      { "date": "2026-04-29", "name": "昭和の日", "kind": "national" },
+      { "date": "2026-05-03", "name": "憲法記念日", "kind": "national" },
+      { "date": "2026-05-04", "name": "みどりの日", "kind": "national" },
+      { "date": "2026-05-05", "name": "こどもの日", "kind": "national" },
+      { "date": "2026-05-06", "name": "休日", "kind": "national" },
+      { "date": "2026-07-20", "name": "海の日", "kind": "national" },
+      { "date": "2026-08-11", "name": "山の日", "kind": "national" },
+      { "date": "2026-09-21", "name": "敬老の日", "kind": "national" },
+      { "date": "2026-09-22", "name": "休日", "kind": "national" },
+      { "date": "2026-09-23", "name": "秋分の日", "kind": "national" },
+      { "date": "2026-10-12", "name": "スポーツの日", "kind": "national" },
+      { "date": "2026-11-03", "name": "文化の日", "kind": "national" },
+      { "date": "2026-11-23", "name": "勤労感謝の日", "kind": "national" }
+    ]
+  },
+  "calendar_2027": {
+    "holidays": [
+      { "date": "2027-01-01", "name": "元日", "kind": "national" },
+      { "date": "2027-01-11", "name": "成人の日", "kind": "national" },
+      { "date": "2027-02-11", "name": "建国記念の日", "kind": "national" },
+      { "date": "2027-02-23", "name": "天皇誕生日", "kind": "national" },
+      { "date": "2027-03-21", "name": "春分の日", "kind": "national" },
+      { "date": "2027-03-22", "name": "休日", "kind": "national" },
+      { "date": "2027-04-29", "name": "昭和の日", "kind": "national" },
+      { "date": "2027-05-03", "name": "憲法記念日", "kind": "national" },
+      { "date": "2027-05-04", "name": "みどりの日", "kind": "national" },
+      { "date": "2027-05-05", "name": "こどもの日", "kind": "national" },
+      { "date": "2027-07-19", "name": "海の日", "kind": "national" },
+      { "date": "2027-08-11", "name": "山の日", "kind": "national" },
+      { "date": "2027-09-20", "name": "敬老の日", "kind": "national" },
+      { "date": "2027-09-23", "name": "秋分の日", "kind": "national" },
+      { "date": "2027-10-11", "name": "スポーツの日", "kind": "national" },
+      { "date": "2027-11-03", "name": "文化の日", "kind": "national" },
+      { "date": "2027-11-23", "name": "勤労感謝の日", "kind": "national" }
+    ]
+  }
+}
