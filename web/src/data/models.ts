@@ -511,3 +511,83 @@ export function parseHolidays(d: DocumentData | undefined): Holiday[] {
 }
 
 export const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`
+
+// MARK: - 休暇（leaveRequests/{id}）。1日1件。まとめて申請した日は groupId が同じ（docs/従業員アプリ指示書_休暇.md）
+
+export type LeaveKind = 'paid' | 'paidAm' | 'paidPm' | 'special' | 'absence'
+export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled'
+
+export const leaveKindLabel: Record<LeaveKind, string> = {
+  paid: '有給（全日）',
+  paidAm: '有給（午前半休）',
+  paidPm: '有給（午後半休）',
+  special: '特別休暇',
+  absence: '欠勤',
+}
+
+/** 勤怠の表などに出す短い名前 */
+export const leaveKindShort: Record<LeaveKind, string> = {
+  paid: '有給',
+  paidAm: '午前半休',
+  paidPm: '午後半休',
+  special: '特別休暇',
+  absence: '欠勤',
+}
+
+export const leaveStatusLabel: Record<LeaveStatus, string> = {
+  pending: '申請中',
+  approved: '承認',
+  rejected: '却下',
+  cancelled: '取り消し',
+}
+
+/** 1日に対する日数（集計用） */
+export const leaveDays = (kind: LeaveKind) => (kind === 'paidAm' || kind === 'paidPm' ? 0.5 : 1)
+
+/** 半休か（その日に打刻があってよい） */
+export const isHalfDayLeave = (kind: LeaveKind) => kind === 'paidAm' || kind === 'paidPm'
+
+export interface LeaveRequest {
+  id: string
+  userId: string
+  date: string
+  month: string
+  kind: LeaveKind
+  reason: string
+  groupId: string
+  status: LeaveStatus
+  createdAt: Date
+  cancelledAt: Date | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  rejectReason: string | null
+  createdBy: string | null
+  /** 管理者が承認済みの休暇を取り消したとき */
+  cancelledBy: string | null
+  cancelReason: string | null
+}
+
+export const leaveKinds: LeaveKind[] = ['paid', 'paidAm', 'paidPm', 'special', 'absence']
+const leaveStatuses: LeaveStatus[] = ['pending', 'approved', 'rejected', 'cancelled']
+
+export function parseLeave(id: string, d: DocumentData): LeaveRequest | null {
+  if (typeof d.userId !== 'string' || typeof d.date !== 'string' || !leaveKinds.includes(d.kind)) return null
+  return {
+    id,
+    userId: d.userId,
+    date: d.date,
+    month: str(d.month, d.date.slice(0, 7)),
+    kind: d.kind,
+    reason: str(d.reason),
+    groupId: str(d.groupId, id),
+    status: leaveStatuses.includes(d.status) ? d.status : 'pending',
+    createdAt: toDate(d.createdAt) ?? new Date(),
+    cancelledAt: toDate(d.cancelledAt),
+    reviewedBy: optStr(d.reviewedBy),
+    reviewedAt: toDate(d.reviewedAt),
+    rejectReason: optStr(d.rejectReason),
+    createdBy: optStr(d.createdBy),
+    cancelledBy: optStr(d.cancelledBy),
+    cancelReason: optStr(d.cancelReason),
+  }
+}

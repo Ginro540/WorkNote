@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@mantine/core": "^9.7.4",
+    "@mantine/dates": "^9.7.4",
     "@mantine/hooks": "^9.7.4",
     "@mantine/modals": "^9.7.4",
     "@mantine/notifications": "^9.7.4",
     "@tabler/icons-react": "^3.49.0",
+    "dayjs": "^1.11.23",
     "firebase": "^13.1.0",
     "leaflet": "^1.9.4",
     "react": "^19.3.1",

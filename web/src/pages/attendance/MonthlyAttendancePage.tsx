@@ -1,8 +1,9 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { IconBeach, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import type { DaySummary } from '../../core/attendance'
 import { dateFromDayKey, dayKey, durationLabel, monthLabel, shiftMonthKey, shortDayLabel, timeLabel, weekday } from '../../core/workCalendar'
-import { reportSummaryLine, type AttendanceCorrection, type DailyReport, type Holiday } from '../../data/models'
+import { daysLabel, leaveTotals } from '../../core/leave'
+import { isHalfDayLeave, leaveKindShort, reportSummaryLine, type AttendanceCorrection, type DailyReport, type Holiday, type LeaveRequest } from '../../data/models'
 import { useObserve } from '../../data/observable'
 import { useSession } from '../../data/session'
 import { Card, Chevron, HeaderButton, Page, StatusBadge } from '../../ui/common'
@@ -15,6 +16,7 @@ export function MonthlyAttendancePage() {
   const store = useObserve(session.attendance)
   const settings = useObserve(session.settings)
   const reports = useObserve(session.reports)
+  const leaves = useObserve(session.leaves)
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const thisMonth = settings.period.monthKey(new Date())
@@ -29,6 +31,9 @@ export function MonthlyAttendancePage() {
   const totalWork = all.reduce((sum, s) => sum + (s.workMinutes ?? 0), 0)
   const totalOvertime = all.reduce((sum, s) => sum + (s.overtimeMinutes ?? 0), 0)
   const deadline = settings.correctionDeadline(month)
+  // 休暇は month で絞らず、日付で選ぶ（締め日を変えたあとも正しく出るように）
+  const leaveTotal = leaveTotals(leaves.leaves, days)
+  const hasLeave = leaveTotal.paid + leaveTotal.special + leaveTotal.absence > 0
 
   /** 備考をタップするとその日の日報を開く（なければ書く） */
   const openReport = (key: string) => {
@@ -43,6 +48,9 @@ export function MonthlyAttendancePage() {
       backLabel="勤怠"
       right={
         <>
+          <HeaderButton onClick={() => navigate('/attendance/leaves/new')} label="休暇を申請">
+            <IconBeach size={22} />
+          </HeaderButton>
           <HeaderButton onClick={() => setMonth(shiftMonthKey(month, -1))} label="前月">
             <IconChevronLeft size={22} />
           </HeaderButton>
@@ -67,6 +75,11 @@ export function MonthlyAttendancePage() {
             <div className="v">{durationLabel(totalOvertime)}</div>
           </div>
         </div>
+        {hasLeave && (
+          <div style={{ fontSize: 13, textAlign: 'center' }}>
+            有給 {daysLabel(leaveTotal.paid)}日・特別休暇 {daysLabel(leaveTotal.special)}日・欠勤 {daysLabel(leaveTotal.absence)}日
+          </div>
+        )}
         {deadline && (
           <div className="dimmed" style={{ fontSize: 12 }}>
             修正申請の期限：{shortDayLabel(deadline)}まで
@@ -83,11 +96,16 @@ export function MonthlyAttendancePage() {
             report={reports.reportOn(key)}
             corrections={store.correctionsOn(key)}
             holiday={settings.holiday(key)}
+            leave={leaves.activeLeaveOn(key)}
             onOpenReport={() => openReport(key)}
           />
         ))}
       </Card>
 
+      <Link to="/attendance/leaves" className="link-card">
+        <span style={{ flex: 1 }}>休暇の申請の一覧</span>
+        <Chevron />
+      </Link>
       <Link to="/attendance/corrections" className="link-card">
         <span style={{ flex: 1 }}>修正申請の一覧</span>
         <Chevron />
@@ -103,9 +121,11 @@ function DayRow(props: {
   report: DailyReport | null
   corrections: AttendanceCorrection[]
   holiday: Holiday | null
+  /** 申請中・承認済みの休暇 */
+  leave: LeaveRequest | null
   onOpenReport: () => void
 }) {
-  const { summary, report, holiday } = props
+  const { summary, report, holiday, leave } = props
   const date = dateFromDayKey(props.dayKey)!
   const w = weekday(date)
   const dayColor = w === 1 || holiday ? colors.holiday : w === 7 ? colors.saturday : undefined
@@ -122,6 +142,12 @@ function DayRow(props: {
         <span className="date" style={{ color: dayColor }}>
           {shortDayLabel(date)}
         </span>
+        {leave && (
+          <span style={{ fontSize: 13, fontWeight: 600, color: colors.reportGreen, opacity: leave.status === 'pending' ? 0.55 : 1 }}>
+            {leaveKindShort[leave.kind]}
+            {leave.status === 'pending' && '（申請中）'}
+          </span>
+        )}
         {first ? (
           <span className="num" style={{ fontSize: 14 }}>
             {timeLabel(first)}〜{summary.lastOut ? timeLabel(summary.lastOut) : ''}
@@ -132,7 +158,7 @@ function DayRow(props: {
             )}
           </span>
         ) : (
-          holiday && <span style={{ fontSize: 12, color: colors.holiday }}>{holiday.name}</span>
+          holiday && !leave && <span style={{ fontSize: 12, color: colors.holiday }}>{holiday.name}</span>
         )}
         <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           {badge}
@@ -151,7 +177,9 @@ function DayRow(props: {
         </button>
       ) : (
         summary.sessions.length > 0 &&
-        props.dayKey <= dayKey(new Date()) && (
+        props.dayKey <= dayKey(new Date()) &&
+        // 承認された全日の休暇の日は、日報の未提出に数えない
+        !(leave?.status === 'approved' && !isHalfDayLeave(leave.kind)) && (
           <button className="remark" style={{ color: colors.warning, fontWeight: 600 }} onClick={props.onOpenReport}>
             日報未提出
           </button>

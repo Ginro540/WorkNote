@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconAlertTriangleFilled, IconCalendar, IconCircleCheckFilled, IconMapPinOff, IconSunrise, IconSunset } from '@tabler/icons-react'
+import { IconAlertTriangleFilled, IconBeach, IconCalendar, IconCircleCheckFilled, IconHourglass, IconMapPinOff, IconSunrise, IconSunset } from '@tabler/icons-react'
 import { punchKindLabel } from '../../core/attendance'
 import { dayKey, durationLabel, jstParts, shortDayLabelFromKey, timeLabel, weekdaySymbols } from '../../core/workCalendar'
 import { homeStatusLabel } from '../../data/attendance'
+import { leaveKindShort } from '../../data/models'
 import { useObserve } from '../../data/observable'
 import { useSession } from '../../data/session'
 import { Card, Chevron, HeaderButton, OfflineBanner, Page, StatusBadge } from '../../ui/common'
@@ -13,11 +14,13 @@ import { PunchTimeline } from './parts'
 /** 打刻（ホーム）：現在時刻と大きな出勤・退勤ボタン、今日の勤務 */
 export function PunchHomePage() {
   const session = useSession()
+  const now = useNow()
   const store = useObserve(session.attendance)
   const location = useObserve(session.location)
+  const leaves = useObserve(session.leaves)
+  const todayLeave = leaves.approvedFullDayLeaveOn(dayKey(now))
   useObserve(session.settings)
   const navigate = useNavigate()
-  const now = useNow()
 
   const isClockOut = store.nextKind === 'out'
   const statusColor = { notStarted: 'gray', working: colors.clockIn, finished: 'green' }[store.homeStatus]
@@ -72,6 +75,21 @@ export function PunchHomePage() {
         </div>
       )}
 
+      {leaves.pendingCount > 0 && (
+        <Link to="/attendance/leaves" className="banner plain">
+          <IconHourglass size={20} color={colors.warning} style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1, fontWeight: 600 }}>申請中の休暇 {leaves.pendingCount}件</div>
+          <Chevron />
+        </Link>
+      )}
+
+      {/* 承認された全日の休暇の日。急に出勤した場合のため、打刻はできるままにする */}
+      {todayLeave && (
+        <div style={{ textAlign: 'center', fontSize: 18, fontWeight: 700, color: colors.reportGreen }}>
+          今日は{leaveKindShort[todayLeave.kind]}です
+        </div>
+      )}
+
       <div className="punch-wrap">
         <button
           className="punch-btn"
@@ -95,6 +113,15 @@ export function PunchHomePage() {
       </div>
 
       <TodayWorkCard workDate={store.timelineWorkDate} />
+
+      <div style={{ display: 'flex', gap: 12 }}>
+        <Link to="/attendance/leaves/new" className="link-card" style={{ flex: 1, justifyContent: 'center', fontWeight: 600 }}>
+          <IconBeach size={20} color={colors.reportGreen} /> 休暇を申請
+        </Link>
+        <Link to="/attendance/leaves" className="link-card" style={{ flex: 1, justifyContent: 'center', fontWeight: 600 }}>
+          休暇の一覧
+        </Link>
+      </div>
 
       {pending && (
         <div className="toast">

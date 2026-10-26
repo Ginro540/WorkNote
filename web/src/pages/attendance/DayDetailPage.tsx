@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconAlertTriangleFilled, IconClock, IconFileTextFilled, IconFlag, IconPencil } from '@tabler/icons-react'
 import type { DaySummary, WorkSession } from '../../core/attendance'
 import { dateFromDayKey, durationLabel, shortDayLabelFromKey } from '../../core/workCalendar'
-import { reportStatusLabel, reportSummaryLine } from '../../data/models'
+import { leaveKindLabel, reportStatusLabel, reportSummaryLine } from '../../data/models'
 import { useObserve } from '../../data/observable'
 import { useSession } from '../../data/session'
 import { Card, Chevron, Page, StatusBadge } from '../../ui/common'
 import { colors, gradients, statusColor } from '../../ui/theme'
 import { openCorrectionRequest } from './CorrectionRequest'
+import { LeaveStatusBadge, openCancel } from './LeaveCard'
 import { CorrectionCard, PunchRow, usePunches } from './parts'
 
 // 地図の部品（Leaflet）は大きいので、この画面を開いたときに読み込む
@@ -21,6 +22,7 @@ export function DayDetailPage() {
   const store = useObserve(session.attendance)
   const settings = useObserve(session.settings)
   const reports = useObserve(session.reports)
+  const leaveStore = useObserve(session.leaves)
   const navigate = useNavigate()
   const { punches, isLoaded } = usePunches('workDate', dayKey)
 
@@ -34,6 +36,7 @@ export function DayDetailPage() {
   const canRequest = settings.canRequestCorrection(monthKey) && isPastOrToday
   const holiday = settings.holiday(dayKey)
   const report = reports.reportOn(dayKey)
+  const leaves = leaveStore.leavesOn(dayKey)
 
   const punchesOf = (s: WorkSession) => {
     const ids = [s.clockIn?.id, s.clockOut?.id]
@@ -46,6 +49,24 @@ export function DayDetailPage() {
         <div style={{ color: colors.holiday, fontSize: 14, display: 'flex', gap: 6, alignItems: 'center' }}>
           <IconFlag size={16} /> {holiday.name}
         </div>
+      )}
+
+      {leaves.length > 0 && (
+        <Card>
+          <b style={{ fontSize: 15 }}>休暇</b>
+          {leaves.map((l) => (
+            <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, flexWrap: 'wrap' }}>
+              <span>{leaveKindLabel[l.kind]}</span>
+              <LeaveStatusBadge leave={l} />
+              {l.status === 'rejected' && l.rejectReason && <span style={{ color: 'var(--mantine-color-red-6)', fontSize: 12 }}>却下の理由：{l.rejectReason}</span>}
+              {l.status === 'pending' && (
+                <button className="header-btn" style={{ marginLeft: 'auto', color: 'var(--mantine-color-red-6)', padding: 0, fontSize: 14 }} onClick={() => openCancel(leaveStore, [l])}>
+                  取り消す
+                </button>
+              )}
+            </div>
+          ))}
+        </Card>
       )}
 
       {isLoaded && summary.sessions.length === 0 && (

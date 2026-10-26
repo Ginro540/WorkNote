@@ -8,6 +8,7 @@ import { auth, db } from '../firebase'
 import { AttendanceStore } from './attendance'
 import { ExpenseStore } from './expenses'
 import { uploadQueue } from './images'
+import { LeaveStore } from './leaves'
 import { LocationService } from './location'
 import { parseUser, type AppUser } from './models'
 import { listenDoc, Observable } from './observable'
@@ -117,12 +118,14 @@ export class AppSession {
   readonly attendance: AttendanceStore
   readonly reports: ReportStore
   readonly expenses: ExpenseStore
+  readonly leaves: LeaveStore
 
   constructor(uid: string) {
     this.uid = uid
     this.attendance = new AttendanceStore(uid, this.settings, this.location)
     this.reports = new ReportStore(uid, this.settings)
     this.expenses = new ExpenseStore(uid, this.settings)
+    this.leaves = new LeaveStore(uid, this.settings)
   }
 
   start() {
@@ -130,6 +133,7 @@ export class AppSession {
     this.attendance.start()
     this.reports.start()
     this.expenses.start()
+    this.leaves.start()
     uploadQueue.run()
   }
 
@@ -137,6 +141,7 @@ export class AppSession {
     this.attendance.stop()
     this.reports.stop()
     this.expenses.stop()
+    this.leaves.stop()
     this.settings.stop()
   }
 }

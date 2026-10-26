@@ -4,8 +4,11 @@ import { BrowserRouter } from 'react-router-dom'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
+import { DatesProvider } from '@mantine/dates'
+import 'dayjs/locale/ja'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
+import '@mantine/dates/styles.css'
 import './ui/app.css'
 import { theme } from './ui/theme'
 import { App } from './App'
@@ -13,12 +16,14 @@ import { App } from './App'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="auto">
-      <ModalsProvider labels={{ confirm: 'OK', cancel: 'キャンセル' }}>
-        <Notifications position="top-center" />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ModalsProvider>
+      <DatesProvider settings={{ locale: 'ja', firstDayOfWeek: 0, weekendDays: [0, 6] }}>
+        <ModalsProvider labels={{ confirm: 'OK', cancel: 'キャンセル' }}>
+          <Notifications position="top-center" />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ModalsProvider>
+      </DatesProvider>
     </MantineProvider>
   </StrictMode>,
 )

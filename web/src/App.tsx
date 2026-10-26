@@ -4,6 +4,8 @@ import { useObserve } from './data/observable'
 import { authService, SessionProvider } from './data/session'
 import { CorrectionListPage } from './pages/attendance/CorrectionListPage'
 import { DayDetailPage } from './pages/attendance/DayDetailPage'
+import { LeaveListPage } from './pages/attendance/LeaveListPage'
+import { LeaveRequestPage } from './pages/attendance/LeaveRequestPage'
 import { MonthlyAttendancePage } from './pages/attendance/MonthlyAttendancePage'
 import { PunchHomePage } from './pages/attendance/PunchHomePage'
 import { ExpenseDetailPage } from './pages/expenses/ExpenseDetailPage'
@@ -55,7 +57,7 @@ export function App() {
 function MainRoutes() {
   const { pathname } = useLocation()
   // 入力画面は下に保存ボタンを出すので、タブを隠す
-  const hidesTabbar = /^\/(reports\/write|expenses\/(new|edit))/.test(pathname)
+  const hidesTabbar = /^\/(reports\/write|expenses\/(new|edit)|attendance\/leaves\/new)/.test(pathname)
   return (
     <>
       <Routes>
@@ -64,6 +66,8 @@ function MainRoutes() {
         <Route path="/attendance/month" element={<MonthlyAttendancePage />} />
         <Route path="/attendance/day/:date" element={<DayDetailPage />} />
         <Route path="/attendance/corrections" element={<CorrectionListPage />} />
+        <Route path="/attendance/leaves" element={<LeaveListPage />} />
+        <Route path="/attendance/leaves/new" element={<LeaveRequestPage />} />
         <Route path="/reports" element={<ReportListPage />} />
         <Route path="/reports/write/:date" element={<ReportEditorPage />} />
         <Route path="/reports/:id" element={<ReportDetailPage />} />
