@@ -1,17 +1,13 @@
-# Xcode
-build/
-DerivedData/
-*.xcuserstate
-xcuserdata/
-*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
-.swiftpm/
-WorkNoteCore/.build/
-
-# Firebase の設定ファイル（各自 Firebase コンソールから取得して置く）
-WorkNote/GoogleService-Info.plist
+# Web アプリ
+web/node_modules/
+firebase/hosting/
 
 # 管理用スクリプト
 firebase/seed/node_modules/
 *service-account*.json
 .firebaserc
+
+# Firebase
+firebase/.firebase/
+firebase-debug.log
 .DS_Store

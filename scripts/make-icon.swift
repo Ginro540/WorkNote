@@ -1,6 +1,6 @@
 // アプリアイコン（1024×1024）を描く。
 // 青〜紫の背景に、日報を表す白いノートと、勤怠を表すオレンジの時計。
-// 使い方: swift scripts/make-icon.swift WorkNote/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+// 使い方: swift scripts/make-icon.swift web/icon/icon-1024.png のあと、web/README の手順で各サイズを作る
 import AppKit
 import CoreGraphics
 
